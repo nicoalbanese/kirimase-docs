@@ -1,18 +1,26 @@
-import React from 'react'
-import { DocsThemeConfig } from 'nextra-theme-docs'
+import { DocsThemeConfig } from "nextra-theme-docs";
 
 const config: DocsThemeConfig = {
-  logo: <span>My Project</span>,
+  logo: (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <img
+        src="/kirimase_logo.png"
+        width="24px"
+        style={{ marginRight: ".5rem", borderRadius: "4px" }}
+      />
+      <span style={{ fontSize: "1.4rem", fontWeight: "700" }}>Kirimase</span>
+    </div>
+  ),
   project: {
-    link: 'https://github.com/shuding/nextra-docs-template',
+    link: "https://github.com/nicoalbanese/kirimase",
   },
-  chat: {
-    link: 'https://discord.com',
-  },
-  docsRepositoryBase: 'https://github.com/shuding/nextra-docs-template',
+  // chat: {
+  //   link: 'https://discord.com',
+  // },
+  docsRepositoryBase: "https://github.com/nicoalbanese/kirimase-docs",
   footer: {
-    text: 'Nextra Docs Template',
+    text: "Kirimase Docs Template",
   },
-}
+};
 
-export default config
+export default config;
