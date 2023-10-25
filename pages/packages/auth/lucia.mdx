@@ -1,0 +1,32 @@
+# Lucia
+Lucia is an auth library for TypeScript that abstracts away the complexity of handling users and sessions. It works alongside your database to provide an API that's easy to use, understand, and extend.
+
+[Documentation](https://lucia-auth.com/getting-started/)
+
+### Dependencies Installed
+* Regular
+  * lucia
+  * (for Prisma) @lucia-auth/adapter-prisma
+  * (for Drizzle - depending on your DB driver) @lucia-auth/adapter-postgresql or @lucia-auth/adapter-mysql or @lucia-auth/adapter-sqlite
+
+### Files Scaffolded
+* `lib/db/schema/auth.ts` (if using Drizzle)
+* `app/sign-in/page.tsx`
+* `app/sign-up/page.tsx`
+* `components/auth/Form.tsx`
+* `lib/auth/utils.ts`
+* `app/loading.tsx`
+* `app/api/sign-in/route.ts`
+* `app/api/sign-up/route.ts`
+* `app/api/sign-out/route.ts`
+* `app.d.ts`
+* `lib/auth/lucia.ts`
+
+### Files Updated
+* `prisma/schema.prisma` (if using Prisma)
+* `.env`
+* `lib/env.mjs`
+* `app/layout.tsx`
+* `app/page.tsx`
+
+

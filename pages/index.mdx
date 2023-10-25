@@ -1,7 +1,47 @@
 # Introduction
  
-
 ## What is Kirimase?
 
-Kirimase is a command-line tool for **building full-stack Next.js apps faster**. It supercharges your development workflow, allowing you to quickly integrate packages and scaffold resources for your application with best practices in mind.
+Kirimase is a command-line tool (CLI) for **building full-stack Next.js apps faster**. It supercharges your development workflow, allowing you to quickly integrate packages and scaffold resources for your application with best practices in mind.
+
+## Motivation
+### TL;DR 
+I love the Ruby on Rails CLI and always yearned for something like it for Next.js. 
+
+### Longer Story
+I’ve always loved building with Next.js. The quality of the learning materials and simplicity of the git deployment workflow made it a dream to go from localhost to production. However, one of Next.js’ selling points, its lack of opinion on what tools to use with it, also led to an undesirable DX. More specifically, before writing a single line of code, I felt overwhelmed in my search for the best email/orm/analytics/test/etc. package. Once I did land on the write combination, I would need to spend a few hours sifting through documentation to configure everything to work together. In almost every case, I would find myself disheartened and eventually disinterested enough to push the task to another day.
+
+Having heard great things about Rails in this regard, I gave it a go and was overjoyed by the simplicity that came with setting up new applications: namely, how quickly I went from `rails new` to actually building the business logic of the application.  Ultimately, while I loved the rails CLI, I was excited to go back to Next.js as building UIs with React always felt more natural and enjoyable than ERB.
+
+Ever since that experience there were two main things that I kept thinking about:
+1) **gems**: why is it so damn complicated to install and configure packages in the JS ecosystem?  Why can’t installing and configuring a package be as easy as `bundle add package`?
+2) **scaffold**: why do I keep writing the same boilerplate for only slightly different db resources? It’s boring and error prone. 
+
+And with that Kirimase was born 😊
+
+## Why Kirimase?
+The name is a funny story. Kirimase, in its original form, started as a way to quickly scaffold the files and packages necessary to get up and running with Drizzle ORM (similar to running npx prisma init). When it came time to brainstorm a name, I immediately thought, I want a cool name like Jotai. I was on my phone at the time and I fired up Google Translate with English to Japanese and typed in drizzle.  Result: kirimase. I thought to myself, “Kirimase”, that’s exactly what I’m looking for, but a cool name like that has probably already been taken by *n* projects before me. So I check NPM and to my surprise, it was available. So I quickly changed the package name and published the first version. 
+
+Later that day, as I excitedly recounted this exact story to a friend, I pulled out Google Translate and up came my previous search result:
+
+> **English**: drizzle  
+> **Japanese**: Kiri*same*
+
+… turns out, I can’t read!
+
+## Quick Overview
+Kirimase has three main commands:
+* `init`:  configures the initial `kirimase.config.json` file that will be used for the `add` and `generate` commands
+* `add`:  select packages to install and configure
+* `generate`:  describe your data model and Kirimase will generate DB schema, migration, service files (queries and mutations), API Routes, tRPC routes, and basic UI to perform all crud operations
+
+## Explore More
+
+- [Getting Started](./getting-started.md)
+- [Commands](./commands.md)
+- [Tutorials and Demos](./tutorials.md)
+
+## Feedback and Contributions
+
+Your feedback and contributions are valuable! Explore the [contributing guide](./contributing.md) to learn more about how you can contribute to Kirimase.
 

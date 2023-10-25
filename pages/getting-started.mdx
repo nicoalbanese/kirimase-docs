@@ -1,0 +1,66 @@
+import { Callout  } from 'nextra-theme-docs'
+
+# Getting Started with Kirimase
+
+Welcome to the initial steps with Kirimase! Kirimase is here to take you from create-next-app to building real features seconds. Here, you will find guidance on installing and setting up Kirimase to make the most of it.
+
+## Prerequisites
+
+Ensure you have the following installed:
+
+- Node.js
+- a package manager (npm / yarn / pnpm / bun)
+
+## Installation
+
+Kirimase can be installed globally to be accessible from any location on your system. To install Kirimase globally, use the following command:
+
+```bash
+npm install -g kirimase
+```
+
+If you prefer not to install it locally, you can run:
+```bash
+npx kirimase@latest *command*
+```
+
+
+## Setting Up Next.js
+
+If you don’t already have a Next.js application setup, you can quickly create one using `create-next-app` using your preferred package manager.
+```bash
+npx create-next-app@latest
+cd your-nextjs-project
+```
+
+
+## Initializing Kirimase
+
+Navigate to the directory of your Next.js application and initialize Kirimase by running:
+
+```bash
+kirimase init
+```
+
+<Callout emoji="📣">
+**Note**: Kirimase is not compatible with the pages directory.
+</Callout>
+
+## First Command: `kirimase add`
+
+You can now start using Kirimase commands. Begin with the `kirimase add` command to initialize and configure essential packages for your Next.js application. Run this command within your project directory:
+
+```bash
+kirimase add
+```
+
+See available [ packages ](./packages.mdx)
+
+## Further Commands
+
+Explore further commands and options such as `kirimase generate` to scaffold models, views, and controllers. Find more detailed explanations in the [Commands](./commands.md) section.
+
+## Next Steps
+
+- Explore detailed [Commands](./commands.md) to harness the full capabilities of Kirimase.
+- Dive into [Tutorials and Demos](./tutorials.md) for more practical guidance and learning.

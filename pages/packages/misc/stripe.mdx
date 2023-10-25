@@ -1,0 +1,32 @@
+# Stripe
+Stripe is a suite of APIs powering online payment processing and commerce solutions for internet businesses of all sizes. Accept payments and scale faster.
+
+[Documentation](https://stripe.com/docs?locale=en-GB)
+
+### Dependencies Installed
+* Regular
+  * stripe 
+  * @stripe/stripe-js 
+
+### Files Scaffolded
+* `lib/db/schema/subscriptions.ts`
+* `lib/stripe/index.ts`
+* `lib/stripe/subscription.ts`
+* `config/subscriptions.ts`
+* `app/account/PlanSettings.tsx`
+* `app/account/billing/ManageSubscription.tsx`
+* `app/account/billing/SuccessToast.tsx` (if using Shadcn UI)
+* `app/account/billing/page.tsx`
+* `app/api/webhooks/stripe/route.ts`
+* `app/api/billing/manage-subscription/route.ts`
+* `lib/server/routers/account.ts` (if using tRPC)
+
+
+### Files Updated
+* `.env`
+* `prisma/schema.prisma` (if using Prisma)
+* `middleware.ts` (if using Clerk)
+* `app/account/page.tsx`
+* `lib/utils.ts`
+* `package.json`
+

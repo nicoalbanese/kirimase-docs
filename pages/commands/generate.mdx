@@ -1,0 +1,59 @@
+
+# `kirimase generate`
+
+## Overview
+
+The `kirimase generate` command quickly scaffolds models, views, and controllers (API / tRPC routes). 
+
+## Usage
+
+Execute the following command within your Next.js project directory:
+
+```bash
+kirimase generate
+```
+
+## Details
+
+- **Models**: Creates model with necessary configurations, relations, and validations.
+- **Controllers**: Generates controllers with options to integrate tRPC and/or API routes.
+- **Views**: Scaffolds views using Shadcn-UI, enabling immediate CRUD operations.
+
+## Examples
+
+Generating models, views, and controllers within a project:
+
+```bash
+cd your-nextjs-project
+kirimase generate
+
+ℹ Quickly generate your Model (Drizzle schema + queries / mutations), Controllers (API Routes and TRPC Routes), and Views                                                                                                   19:11:01
+? Please select the resources you would like to generate: Model, TRPC Route, Views + Components (with Shadcn UI, requires TRPC route)
+? Please enter the table name (plural and in snake_case): authors
+? Please select the type of this field: string
+? Please enter the field name (in snake_case): name
+? Is this field required? yes
+? Would you like to add another field? yes
+? Please select the type of this field: number
+? Please enter the field name (in snake_case): birth_year
+? Is this field required? no
+? Would you like to add another field? no
+? Would you like to set up an index? no
+
+
+OUTPUT:
+✔ Added Author to Prisma schema                                                                                                                                                                                               19:13:12
+✔ File replaced at prisma/schema.prisma                                                                                                                                                                                     19:13:12
+ℹ Updated Prisma schema                                                                                                                                                                                                     19:13:12
+✔ File created at src/lib/db/schema/authors.ts                                                                                                                                                                                19:13:12
+✔ File created at src/lib/server/routers/authors.ts                                                                                                                                                                           19:13:12
+✔ File replaced at src/lib/server/routers/_app.ts                                                                                                                                                                           19:13:12
+✔ Added 'authors' router to the root tRPC router successfully.                                                                                                                                                                19:13:12
+✔ File created at src/app/authors/page.tsx                                                                                                                                                                                    19:13:12
+✔ File created at src/components/authors/AuthorList.tsx                                                                                                                                                                         19:13:12
+✔ File created at src/components/authors/AuthorForm.tsx                                                                                                                                                                         19:13:12
+✔ File created at src/components/authors/AuthorModal.tsx                                                                                                                                                                        19:13:12
+
+```
+
+Check out [demos and tutorials](../tutorials.md) to see a live example

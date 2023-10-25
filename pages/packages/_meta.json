@@ -1,0 +1,6 @@
+{
+  "orm": "ORM",
+  "auth": "Authentication",
+  "component-libs": "Component Library",
+  "misc": "Miscellaneous"
+}

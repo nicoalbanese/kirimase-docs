@@ -1,0 +1,26 @@
+# Auth.js
+Auth.js is a set of open-source packages that are built on Web Standard APIs for authentication in modern applications with any framework on any platform in any JS runtime.
+
+[Documentation](https://authjs.dev/getting-started/introduction)
+
+### Dependencies Installed
+* Regular
+  * @auth/core 
+  * next-auth
+  * @auth/prisma-adapter (if using Prisma)
+  * @auth/drizzle-adapter (if using Drizzle)
+
+### Files Scaffolded
+* `lib/db/schema/auth.ts` (if using Drizzle)
+* `app/api/auth/[...nextauth]/route.ts`
+* `lib/auth/Provider.tsx`
+* `lib/auth/utils.ts`
+* `components/auth/SignIn.tsx`
+
+### Files Updated
+* `prisma/schema.prisma` (if using Prisma)
+* `.env`
+* `lib/env.mjs`
+* `app/layout.tsx`
+* `app/page.tsx`
+

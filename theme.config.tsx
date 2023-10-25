@@ -1,4 +1,3 @@
-import { useRouter } from "next/router";
 import { DocsThemeConfig, useConfig } from "nextra-theme-docs";
 
 const config: DocsThemeConfig = {
@@ -15,15 +14,15 @@ const config: DocsThemeConfig = {
   project: {
     link: "https://github.com/nicoalbanese/kirimase",
   },
-  // chat: {
-  //   link: 'https://discord.com',
-  // },
+  chat: {
+    link: "https://discord.gg/2dnD58sf",
+  },
   docsRepositoryBase: "https://github.com/nicoalbanese/kirimase-docs",
   footer: {
-    text: "Kirimase Docs Template",
+    text: "Kirimase Documentation - 2023",
   },
   primaryHue: 124,
-  primarySaturation: 38,
+  primarySaturation: 28,
   useNextSeoProps() {
     return {
       titleTemplate: "%s – Kirimase",

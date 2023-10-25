@@ -1,11 +1,10 @@
 {
   "index": "Introduction",
-  "another": "Another Page",
-  "advanced": "Advanced (A Folder)",
-  "about": {
-    "title": "About",
-    "type": "page"
-  },
+  "getting-started": "Getting Started",
+  "commands": "Commands",
+  "packages": "Packages",
+  "tutorials": "Tutorials and Guides",
+  "contributing": "Contributing",
   "contact": {
     "title": "Contact ↗",
     "type": "page",

@@ -1,0 +1,138 @@
+import { Tabs, Tab } from 'nextra/components'
+
+# Drizzle ORM
+Drizzle ORM is a TypeScript ORM for SQL databases designed with maximum type safety in mind. It comes with a [drizzle-kit](https://github.com/drizzle-team/drizzle-kit-mirror) CLI companion for automatic SQL migrations generation. Drizzle ORM is meant to be a library, not a framework. It stays as an opt-in solution all the time at any levels. The ORM's main philosophy is "If you know SQL, you know Drizzle ORM". We follow the SQL-like syntax whenever possible, are strongly typed ground up, and fail at compile time, not in runtime.
+
+[Documentation](https://orm.drizzle.team/docs/overview)
+
+### Dependencies Installed
+
+<Tabs items={['postgresjs', 'node-postgres', 'Neon', 'Vercel', 'Supabase', 'Planetscale', 'mysql-2', 'better-sqlite3']}>
+
+<Tab>
+* **Regular**
+  * `drizzle-orm`
+  * `drizzle-zod`
+  * `@t3-oss/env-nextjs`
+  * `zod@3.21.4`
+  * `postgres`
+* **Developer**
+  * `drizzle-kit`
+  * `tsx`
+  * `dotenv`
+  * `pg`
+</Tab>
+
+<Tab>
+* **Regular**
+  * `drizzle-orm`
+  * `drizzle-zod`
+  * `@t3-oss/env-nextjs`
+  * `zod@3.21.4`
+  * `pg`
+* **Developer**
+  * `drizzle-kit`
+  * `tsx`
+  * `dotenv`
+  * `@types/pg`
+</Tab>
+
+<Tab>
+* **Regular**
+  * `drizzle-orm`
+  * `drizzle-zod`
+  * `@t3-oss/env-nextjs`
+  * `zod@3.21.4`
+  * `@neondatabase/serverless`
+* **Developer**
+  * `drizzle-kit`
+  * `tsx`
+  * `dotenv`
+  * `pg`
+</Tab>
+
+<Tab>
+* **Regular**
+  * `drizzle-orm`
+  * `drizzle-zod`
+  * `@t3-oss/env-nextjs`
+  * `zod@3.21.4`
+  * `@vercel/postgres`
+* **Developer**
+  * `drizzle-kit`
+  * `tsx`
+  * `dotenv`
+  * `pg`
+</Tab>
+
+<Tab>
+* **Regular**
+  * `drizzle-orm`
+  * `drizzle-zod`
+  * `@t3-oss/env-nextjs`
+  * `zod@3.21.4`
+  * `postgres`
+* **Developer**
+  * `drizzle-kit`
+  * `tsx`
+  * `dotenv`
+  * `pg`
+</Tab>
+
+<Tab>
+* **Regular**
+  * `drizzle-orm`
+  * `drizzle-zod`
+  * `@t3-oss/env-nextjs`
+  * `zod@3.21.4`
+  * `@planetscale/database`
+* **Developer**
+  * `drizzle-kit`
+  * `tsx`
+  * `dotenv`
+  * `mysql2`
+</Tab>
+
+<Tab>
+* **Regular**
+  * `drizzle-orm`
+  * `drizzle-zod`
+  * `@t3-oss/env-nextjs`
+  * `zod@3.21.4`
+  * `mysql2`
+* **Developer**
+  * `drizzle-kit`
+  * `tsx`
+  * `dotenv`
+</Tab>
+
+<Tab>
+* **Regular**
+  * `drizzle-orm`
+  * `drizzle-zod`
+  * `@t3-oss/env-nextjs`
+  * `zod@3.21.4`
+  * `better-sqlite3`
+* **Developer**
+  * `drizzle-kit`
+  * `tsx`
+  * `dotenv`
+  * `@types/better-sqlite3`
+</Tab>
+
+</Tabs>
+
+### Files Scaffolded
+* `lib/db/index.ts`
+* `lib/db/migrate.ts`
+* `drizzle.config.ts`
+
+### Files Updated
+* `.env`
+* `lib/env.mjs`
+* `package.json`
+
+Note: if you decide to include example mode, the following additional files will be scaffolded:
+* `lib/db/schema/computers.ts`
+* `lib/api/computers/queries.ts`
+* `lib/api/computers/mutations.ts`
