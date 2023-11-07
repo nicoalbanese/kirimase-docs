@@ -15,7 +15,7 @@ const config: DocsThemeConfig = {
     link: "https://github.com/nicoalbanese/kirimase",
   },
   chat: {
-    link: "https://discord.gg/2dnD58sf",
+    link: "https://discord.gg/kNWsAwb5K",
   },
   docsRepositoryBase: "https://github.com/nicoalbanese/kirimase-docs",
   footer: {
