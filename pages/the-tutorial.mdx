@@ -1,0 +1,833 @@
+import { Callout  } from 'nextra-theme-docs'
+
+# Kirimase: The Tutorial
+
+<Callout emoji="📣">
+**Note**: this tutorial will probably take about an hour to get through start to finish. it will be a lot of fun though 😊
+</Callout>
+
+## Hello! 👋
+
+In this tutorial, we are going to **build a minimal Linktree clone** with Next.js and Kirimase. The aim of this tutorial is to give you an introduction to Kirimase, the commands, and a basic understanding of what code is being generated. Ultimately, I hope to show you how Kirimase can help you go from idea to MVP in a fraction of the time.
+
+Before we start, let’s briefly discuss what we want to build and the stack we are going to use.
+
+#### Core Features
+
+- allow users to:
+  - make an account
+  - create a “page”
+  - create a number of “links” for that page
+  - share the page with the world on a custom link (ie. linktree.com/share/your-page)
+- require users to pay to
+  - share the page
+  - change the color of the page
+
+#### The Stack
+So, what stack are we going to use? For this tutorial, I wanted to keep things as simple as possible as the aim is to learn how to use Kirimase, rather than the underlying tools (and their respective platforms). With that in mind, each tool (besides Stripe) will be able to run locally without any extra setup. I would suggest to stick to the tools used in this tutorial to make it as simple to follow along as possible, and then experiment afterwards :)
+
+So, the stack:
+
+- Component Library - Shadcn
+- ORM - Drizzle powered by SQLite
+- Authentication - Lucia
+- Payments - Stripe
+
+Sound good? Let’s get cracking!
+
+## Project Setup
+
+We are going to be using PNPM for this tutorial. While I love Bun, and use it form most of my projects, you can run into compatibility issues every now and then with it. So, PNPM it is. Let’s scaffold our first project!
+
+#### Create Next App
+Unlike other boilerplates, Kirimase aims to modularise each component (package) within the stack. To get started, let’s create a new Next.js app using create-next-app.
+
+```bash copy
+pnpm create next-app kirimase-tutorial
+```
+
+> Note: Kirimase only works with the App directory and Typescript, so be sure to select yes during configuration.
+
+
+Now that your new project has been created, change into the new directory.
+
+```bash copy
+cd kirimase-tutorial
+```
+
+#### Initialise Kirimase
+Once in the new directory, run the following command:
+
+```bash copy
+pnpm dlx kirimase@latest init
+```
+
+>Note: this tutorial is using version 0.0.54. Please make sure you are using that version. You can check your version by running `pnpm dlx kirimase@latest -V`
+
+1) For component library, select `Shadcn UI (with next-themes)`
+2) For ORM, select `Drizzle`
+3) For DB Type, select `SQLite`
+4) For DB Provider, select `better-sqlite3`
+5) For Authentication, select `Lucia`
+
+Then hit your enter key to proceed with the configuration and installation.
+
+You should see the installation begin, first installing relevant packages, then installing a few Shadcn-UI components.
+
+Once the installation is complete, you should see the following in your terminal:
+![](/assets/tutorial/Screenshot%202024-02-12%20at%2013.49.02.png)
+note: if the formatting looks strange, be sure to zoom out and extend the width of your terminal.
+
+#### Installation Complete: Next Steps
+Great! Believe it or not, the base of your app is fully installed and configured already 🤯
+
+Let’s test things out to make sure it all works (hint: it does 😊). To do so, we will follow the instructions listed in the next steps section:
+
+1. check the `.env` file to see if we need to add any secrets. Given we are using SQLite, Kirimase has already set the DATABASE_URL variable to `sqlite.db` so no further actions are required.
+2. Next we will run the following commands
+   1. `pnpm run db:generate` - this command will generate our first database migration
+   2. `pnpm run db:push` - this command will push the changes described in the migration file to your database
+3. Now we can run `pnpm run dev` and open `http://localhost:3000` to see our configured application.
+
+#### Navigating our new app
+At the root route you will see a very basic landing page. This was generated using v0.dev. We won’t touch it in this tutorial but it is intended to give you a head start for your product. The page is responsive but requires you update the copy and styling.
+
+Ok let’s click the sign in link in the top right hand corner, this will take you to `/sign-in`. Now, we obviously don’t have an account yet, so let’s click “Create an account” which will take you to `/sign-up`. Put in some dummy credentials and then sign up. In this case, I will use: test as my username and test123 as my password. Awesome! You should be redirected to `/dashboard` and you should see a JSON representation of your session. 
+
+![](/assets/tutorial/Screenshot%202024-02-12%20at%2013.58.48.png)
+
+By default, Kirimase scaffolds three main “authenticated” routes (authenticated means they are only accessible if you are signed in):
+
+- dashboard
+- account
+- settings
+  Try visiting the account page by clicking the “Account” button in the sidebar. Here there are two “Account Cards”, one for setting your name and the other for setting your email. If you are using a managed authentication provider like Clerk or Kinde, these inputs will likely already have a value present, and the inputs will be disabled by default. This is because the data is managed by the provider, rather than your application.
+
+Try updating your name. You’ll notice that that there is a nice loading state on the button when you click or hit enter, and then a toast is presented in the bottom right hand corner. This is enabled by Shadcn UI and Sonner. How nice! You can also update your email while you’re there.
+Note: these components are in the account route directory (`app/(app)/account/`)
+
+Great! So your account is now set up, and the details are automatically available in the session object across your application.
+
+Now let’s click on “Settings” in the sidebar. You should see three buttons, Light, Dark, and System. Toggle them and move around the app if you haven’t already 😊. You should see the entire application is themed by default. How cool!
+
+Awesome, so, **with just one terminal command, we’ve gone from a blank Next.js project, to a full-stack application with a database, ORM set up, and authentication**. Pretty nice, right?
+
+## Kirimase Init: What's Going On?
+
+Let’s head back to the editor and see what’s been generated and how it’s structured.
+
+Let’s start with the `package.json`. To help speed up our work with Drizzle, Kirimase has configured a few additional scripts:
+
+```json filename="package.json"
+{
+  "db:generate": "drizzle-kit generate:sqlite",
+  "db:migrate": "tsx src/lib/db/migrate.ts",
+  "db:drop": "drizzle-kit drop",
+  "db:pull": "drizzle-kit introspect:sqlite",
+  "db:push": "drizzle-kit push:sqlite",
+  "db:studio": "drizzle-kit studio",
+  "db:check": "drizzle-kit check:sqlite"
+}
+```
+
+We already used two of them, `db:generate` and `db:push`. We won’t be using any more of these in the tutorial but please see Drizzle’s documentation for more details if you are interested.
+
+### Directory Structure
+Ok, next, let’s dive into the directory structure. There are four main top level directories
+
+- app
+- components
+- config
+- lib
+
+#### App
+Let’s start with `app`. This is the entry point for your Next.js application and work exactly as you would expect. Next.js uses file-based routing, so you can create a new route by creating a folder with your desired route name (in snake-case) and then add a `page.tsx` in that directory. That `page.tsx` needs to default export a function that returns some JSX.
+
+If you open the `app` directory, you will see 3 directories and five files
+
+- `(app)/` - route group containing all of your authenticated routes
+- `(auth)/` - route group containing all routes managing sign-in / sign-out
+- `api/` - directory with your api routes
+- `favicon.ico` - favicon
+- `globals.css` - global styles for the app
+- `layout.tsx` - root layout for the app
+- `loading.tsx` - component that will be rendered in place of children when loading
+- `page.tsx` - root page (landing page)
+
+Kirimase utilises a new Next.js feature (introduced with the App router) called route groups as a way to organise logic and routes in your application. As per the Next.js docs:
+
+> In the app directory, nested folders are normally mapped to URL paths. However, you can mark a folder as a **Route Group** to prevent the folder from being included in the route's URL path.
+> This allows you to organize your route segments and project files into logical groups without affecting the URL path structure.
+> https://nextjs.org/docs/app/building-your-application/routing/route-groups
+
+Route groups also introduce a new feature called shared layouts, which allow you to create a `layout.tsx` in the root of the route group (eg. `(app)/layout.tsx`) and it will be shared across all routes within that directory. This also means that you now have an easy way to run code for specific routes without having to resort to introducing middleware. Very cool. We won’t dive into the specific code within these layouts, but know that Kirimase uses layout groups to both share styles (ie. app the skeleton with sidebar and navbar) for any sub route and authentication logic (ie. calling `checkAuth()` to ensure there is a session). Kirimase scaffolds two route groups: `(app)` which has all of your app routes, and `(auth)` which has sign-in and sign-up routes.
+
+Moving on, we have the api directory. In Next.js, you can define an api route in a similar fashion to creating a page. You first create a directory with the name you want for the endpoint and then create a file within that directory using the reserved file name `route.ts`. In that file you need to export an async function that is named an HTTP method (GET, PUT, POST, DELETE) and that will then handle that method on that route. Simple.
+
+For our configuration, Kirimase has scaffolded 4 directories: account, sign-in, sign-out, sign-up. These are self explanatory and we won’t dive into that code in this tutorial.
+
+Finally we have the files in the `app` directory. These are self-explanatory and standard in all Next.js applications. The one addition to this group is the `loading.tsx`. This makes use of another amazing Next.js app router feature:
+
+> The special file loading.js [or loading.tsx] helps you create meaningful Loading UI with [React Suspense](https://react.dev/reference/react/Suspense). With this convention, you can show an [instant loading state](https://nextjs.org/docs/app/building-your-application/routing/loading-ui-and-streaming#instant-loading-states) from the server while the content of a route segment loads. The new content is automatically swapped in once rendering is complete.
+
+In this case, Kirimase scaffolds a very basic loading spinner that will be centered on the page.
+
+
+#### Components
+Moving on: Components. This directory is self-explanatory: it houses all of your (shared) components. I say “shared” because Next.js allows you to define components within the directory of a route and that is a convention followed for any components that will only be used on that route. So for example, the `/account` route has a few components that are only used on that page and therefore “housed” within that directory so as to not clog the components directory. Note: the ui is a reserved directory that houses all shadcn-ui components. Any additional components installed via the shadcn-ui cli will be added directly there.
+
+#### Config 
+Moving on to the config directory, this is again quite self-explanatory. This houses one file in our case: `nav.ts`. This file controls the items in your sidebar. We will see how Kirimase will add to this file later on the in the tutorial.
+
+#### Lib 
+Finally, we have the `lib` directory. This is an important one, so buckle up.
+
+We have 3 directories here (`api`, `auth`, `db`) and then 2 files (`env.mjs`, `utils.ts`). Let’s start with the files because they are easy to understand.
+
+`env.mjs` acts as a typesafe layer to access your environment variables. It makes use of t3-oss/env which is a great package created and maintained by the t3 team. Big shoutout to t3!
+
+Next, we have `utils.ts`. This houses two functions `cn()` which is used for merging tailwind classes and `nanoid()` which is used to create CUIDs for our schema models which we will create later with Kirimase’s generate command. Broadly speaking, this is a good place for any generic functions that you need to reuse across your application.
+
+Now, onto the directories. Starting with `api`, this is currently empty, but will later house query and mutation functions to interact with our underlying data models. Don’t worry if this doesn’t make sense right now, we will dive into it later on. `auth` houses all of the logic pertaining to authentication within our app. The file to focus on here is `utils.ts`. This file will be present regardless of authentication provider you use and will always have three things: an `AuthSession` type, a `getUserAuth()` function and a `checkAuth()` function. The `AuthSession` type defines the session object throughout the object and is super helpful when you need to pass down the session into a child component and need to type it. The `getUserAuth()` function will return the current session. This is an asynchronous function and can be used across your application ==on the server==. Finally, `checkAuth()` is a nice helper function that get’s the current session, and if it doesn’t exist, then it will redirect the client to `/sign-in`. This function is used in the root `(app)` layout to ensure navigating within that route-group must be authenticated! Again, note, these functions will be available and function identically regardless of authentication provider you use. How nice is that!
+
+Finally we have the `db` directory. Again, a lot going on here, so buckle up. This folder is exactly what it says on the tin: db. It houses everything related to your database. So, given we are using Drizzle for this project we have 1) a `/migrations` directory which houses, you guessed it, our migrations; 2) a `/schema` directory which houses, (hope you’re catching on?) our schemas; 3) our `index.ts` which handles the instantiation of the `db` object you will use across your application; 4) and finally a `migrate.ts` file that handles all the migration logic. Simple, right? You probably won’t need to dive into any of this except for the `schema` directory. At the moment we only have `auth.ts`, and this is the schema that provides the data model for Lucia.
+
+OK! Whew! We got through pretty much everything that was done during the initial configuration process. Quite a lot right? I hope this already shows you how awesome Kirimase is and how much time it can save. But, we haven’t even scratched the surface 😊
+
+Next up, let’s look at Kirimase’s generate feature.
+
+## Kirimase Generate
+
+### The Problem
+So, in case you forgot, we are planning on building a Linktree clone. The typical approach to building this out would probably see us start with defining the data model, create a new schema, writing a few api routes for basic CRUD (create, read, update, delete) actions, then building a basic form and firing off our first post request. I don’t know about you, but that process usually takes me more than I’m comfortable admitting and usually leads to a handful of bugs and shoddy code.
+
+![](/assets/tutorial/giphy.gif)
+me 2 hours into building my $1bn todo app
+
+### There is a Better Way
+Enter Kirimase’s generate command. Let’s see what all the hype is about.
+
+First let’s quickly define our data model. We’re going to have two models with the following fields:
+
+- page
+  - name: string
+  - description: string
+  - public: boolean
+  - slug: string (unique)
+  - backgroundColor: string (default: #688663)
+- links
+  - title: string
+  - url: string
+
+Pretty basic, but should do the job. 
+
+### Running our First Generate Command
+
+Open your terminal and run:
+
+```bash copy
+pnpm dlx kirimase@latest generate
+```
+> note: we are using version 0.0.54
+
+#### Prompt and Response
+Select the following options:
+
+1. For the resource type: select Model, Controller and View. You can quickly select all by hitting `i` on your keyboard, or by hitting the spacebar on each option
+2. For the type of view, select “Server Actions with Optimistic UI”
+3. For additional controllers: hit space bar to add API Route
+   [defining first model]
+4. enter `pages` as the table name
+   1. select `string` for the type of field
+   2. enter `name` for field name
+   3. hit enter key to confirm this key is required
+   4. hit `y` then enter to add another field
+   5. **field 2** - `string` - `description` - required
+   6. **field 3** - `boolean` - `public` - required
+   7. **field 4** - `string` - `slug` - required
+   8. **field 5** - `string` - `background_color` - required
+   9. index - no
+   10. timestamps - yes
+   11. belongs to the user - yes
+   12. child model - yes
+5. table name - `page_links`
+   1. **field 1** - `string` - `title` - required
+   2. **field 2** - `string` - `url` - required
+   3. index - no
+   4. timestamps - yes
+   5. belongs to the user - yes
+   6. child model - no
+6. Child Model (page_links) - no
+7. Child Model (pages) - no
+8. Add Pages to sidebar - yes
+9. Add Page Links to sidebar - no
+
+**Done**!
+
+Note: you’ll notice that we didn’t call the second model "links". This is due to Link being a reserved word in Next.js and can cause some issues.
+
+#### Small Changes to Schema
+Great! Let’s make a few small changes to the schema before we run the next steps.
+Let’s head to `schema/pages.ts`. We’re going to make two small changes.  
+
+1. change `slug: text("slug").notNull(),{:typescript}` to `slug: text("slug").notNull().unique(),{:typescript}`
+2. change `backgroundColor: text("background_color").notNull(),{:typescript}` to `backgroundColor: text("background_color").notNull().default("#688663"),{:typescript}`
+
+so the pages schema should now look like this should look like this:
+```typescript copy {8, 10}
+//... your imports
+export const pages = sqliteTable("pages", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  public: integer("public", { mode: "boolean" }).notNull().default(false),
+  slug: text("slug").notNull().unique(),
+  backgroundColor: text("background_color").notNull().default("#688663"),
+//...rest of your code
+```
+
+These changes are very simple. Change 1 sets a unique constraint on the slug field, meaning there will never be a duplicate value in the slug field across the table. This is important as the slug will be the url for our users’ shared pages. Change 2 sets a default colour for the background. This is a feature we will be putting behind a paywall so we want to set a default color.
+
+### Push Changes to DB and Run App
+Done! Let’s now run the commands listed in the next steps:
+
+```bash copy
+pnpm run db:generate
+pnpm run db:push
+pnpm run dev
+```
+
+Head over to http://localhost:3000/dashboard and let’s see what’s changed.
+
+You should now see a new section in your Sidebar called “Entities” with an element called “Pages”. Click on it. This should push you to `/pages` where you should find a new UI that looks like this:
+
+![](/assets/tutorial/Screenshot%202024-02-12%20at%2016.20.50.png)
+
+#### Add your first page 
+
+```
+Mine:
+- Name: Kirimase Resources
+- Description: Helpful resources for Kirimase
+- Public: unchecked
+- Slug: kirimase
+- Background Color: empty
+```
+
+Hit enter and woah, check out that success toast. Pretty clean right!
+
+#### Error Handling Out of the Box
+Now try creating a new page with the same slug (for me “kirimase”).
+
+Woahh! Error handling built in. Passed directly to the user. How awesome is that?
+
+![](/assets/tutorial/Screenshot%202024-02-12%20at%2016.23.38.png)
+
+Ok let’s exit out the modal and head into our first page (click the edit button). Awesome. You should see a JSON representation of your Page as well as an edit button and your pages’ links below. 
+
+Hit the edit button and try editing the page to see what happens. **Full CRUD actions, ready to go, right out the box!** How sweet is that! 
+
+#### Client Side Form Validations
+Let’s show off one more cool feature that’s ready to go instantly: form validations.
+
+Let’s jump back to the editor. You should already have the `schema/pages.ts` file open from earlier. Let’s go down to `insertPageParams` variable and change it to be the following:
+```typescript copy {4-6}
+export const insertPageParams = baseSchema
+  .extend({
+    public: z.coerce.boolean(),
+    slug: z
+      .string()
+      .min(5, { message: "Your slug must be at least 5 characters long." }),
+  })
+  .omit({
+    id: true,
+    userId: true,
+  });
+```
+
+Save and head back to the browser. Click edit and then remove the text from your slug field.
+
+![](/assets/tutorial/Screenshot%202024-02-12%20at%2016.34.13.png)
+
+**Form Validation working with one line of code**! No extra libraries. How cool is that?!?
+
+#### Adding Our Links
+While we are on our Page, let's add two links. I’ve added:
+
+- Github - https://github.com/nicoalbanese/kirimase
+- Discord - https://discord.gg/kNWsAwb5K
+
+
+---
+### Wait, Hold Up
+Ok. Let’s pause real quick.
+
+![](/assets/tutorial/giphy%202.gif)
+
+**We ran one command, and we have a working full stack application** that lets us create a page and add links to it. And it just works?
+
+![](/assets/tutorial/giphy%203.gif)
+
+Is this just some library that abstracts everything away into a pretty function call and then hides it all deep in the cauldrons of NPM somewhere?
+
+**NOPE**
+
+>You can think of Kirimase a bit like Shadcn UI but for full-stack Next.js development: it takes a lot of boring, verbose, error-prone boilerplate, generates it for you with best practices in mind, and then leaves it for you to do with it as you please. No external dependencies, no abstractions, just code. - me
+
+So let’s dive in.
+
+## Kirimase Generate: What's Going On?
+As you saw in the first prompt of the `generate` command, **Kirimase separates resources into three types: models, controllers, and views**. Now for those who are about to yell at me for using MVC, hold up. Kirimase doesn’t use an MVC architecture, it’s just a helpful way to group the various files that Kirimase generates. With that out the way, let’s define these resources:
+
+- **model** - everything related to your data model (schema - definition of your data, service functions - queries and mutations for basic CRUD operations)
+- **controller** - the interface between models and views (api routes, trpc routes, server actions). This covers anything that allows you to call service functions from your frontend
+- **views** - pretty self explanatory (routes and components for displaying and interacting with your data)
+
+Make sense?
+
+### It created how many files?
+With that in mind, let’s look at everything that’s been created, grouped into MVC.
+
+#### Model
+- `lib/db/schema/pages.ts` - page schema
+- `lib/api/pages/queries.ts` - service functions for querying pages
+- `lib/api/pages/mutations.ts` - service functions for mutating pages
+- `lib/db/schema/pageLinks.ts` - pageLinks schema
+- `lib/api/pageLinks/queries.ts` - service functions for querying pageLinks
+- `lib/api/pageLinks/mutations.ts` - service functions for mutating pageLinks
+#### Controller
+- `lib/actions/pages.ts` - server actions for pages (create, update, delete)
+- `lib/actions/pageLinks.ts` - server actions for pageLinks (create, update, delete)
+- `app/api/pages/route.ts` - api route for mutating pages (create, update, delete)
+- `app/api/pageLinks/route.ts` - api route for mutating pages (create, update, delete)
+#### View
+- `app/(app)/pages/page.tsx` - root pages route
+- `app/(app)/pages/useOptimisticPages.tsx` - hook that enables optimistic ui for root pages route
+- `app/(app)/pages/[pageId]/page.tsx` - route for specific page
+- `app/(app)/pages/[pageId]/OptimisticPage.tsx` - component manages optimistic ui for specific page
+- `app/(app)/pages/[pageId]/[pageLinkId]/page.tsx` - route for specific page link
+- `app/(app)/page-links/page.tsx` - root pageLinks route
+- `app/(app)/page-links/useOptimisticPageLinks.tsx` - hook that enables optimistic ui for root pageLinks route
+- `app/(app)/page-links/[pageLinkId]/page.tsx` - route for specific page link
+- `app/(app)/page-links/[pageLinkId]/OptimisticPageLink.tsx` - component manages optimistic ui for specific page links
+- `components/pages/PageForm.tsx` - reusable form component that can be used to create or edit a Page
+- `components/pageLinks/PageLinkForm.tsx` - reusable form component that can be used to create or edit a page link
+- `components/pages/PageList.tsx` - component that lists all page links
+- `components/pageLinks/PageLinkList.tsx` - component that lists all page links
+#### Shared 
+These are components that will be generated upon first generate command and shared across generated entities.
+- `components/shared/Modal.tsx` - a modal to use across your application. Most frequently used to house form components above
+- `components/shared/BackButton.tsx` - component that incorporates some magic to ensure that the address is always correct for the context (ie. If you are in `/pages/asksld/page-links/sdkfl`, go back to `/pages/asksld` or if you are in `/page-links/sdkfl`, go back to `/page-links`)
+- `lib/hooks/useValidatedForm.tsx` - hook that provides easy client side validations that we saw in an earlier step
+
+**Holy smokes. That’s a lot of code.**
+
+![](/assets/tutorial/giphy%204.gif)
+
+But don’t run away! While it may seem intimidating, I can assure you that once you familiarise yourself with the basic structure, it’s quite intuitive. With that out of the way, let’s get back to building!
+
+## Let's Build
+Let’s make a quick checklist of everything we need to do to get this working:
+
+- [ ] add a new dynamic route `/share/:slug` for the shareable page
+- [ ] remove `public` and `backgroundColor` fields from pageForm (we want to gate these features)
+- [ ] add and configure stripe
+- [ ] add a new component for users to toggle their page public
+
+### Dynamic Route
+Ok. Let’s start with the dynamic route. Let’s think through this todo items in three basic steps. First, the model, then the controller, then the view (noticing a pattern here?). For the model, we need to think about the data we will need for the page. In this case, we will need to fetch a page (and its links) by its slug. 
+
+#### Adding a new query
+So, first stop: `lib/api/pages/queries.ts`. You’ll notice the file already has three functions `getPages`, `getPageById`, and `getPageByIdWithPageLinks`. From the looks of things, all we need to do is copy the `getPageByIdWithPageLinks` function, update the argument to slug instead of id, remove the call to `getUserAuth`, remove the userId from the where clause, and then update the other where condition to search for the slug rather than the id. Pretty simple right? So add the following function to the end of your file.
+
+```typescript copy
+export const getPageBySlugWithPageLinks = async (slug: PageSlug) => {
+  const { slug: pageSlug } = pageSlugSchema.parse({ slug });
+  const rows = await db
+    .select({ page: pages, pageLink: pageLinks })
+    .from(pages)
+    .where(eq(pages.slug, pageSlug))
+    .leftJoin(pageLinks, eq(pages.id, pageLinks.pageId));
+  if (rows.length === 0) return {};
+  const p = rows[0].page;
+  const pp = rows
+    .filter((r) => r.pageLink !== null)
+    .map((p) => p.pageLink) as CompletePageLink[];
+
+  return { page: p, pageLinks: pp };
+};
+```
+
+Note you will have some errors with `pageSlugSchema` and `PageSlug`. Let’s go create them quickly. 
+
+Head over to `lib/db/schema/pages.ts` 
+
+1. add the following _below_ the `pageIdSchema`
+
+```typescript copy {2}
+export const pageIdSchema = baseSchema.pick({ id: true });
+export const pageSlugSchema = baseSchema.pick({ slug: true });
+```
+
+2. add the following below `PageId`
+
+```typescript copy {2}
+export type PageId = z.infer<typeof pageIdSchema>["id"];
+export type PageSlug = z.infer<typeof pageSlugSchema>["slug"];
+```
+
+> Make sure to head back to your queries file and import them which should resolve the errors.
+
+Next up, the route!
+
+#### The Route
+
+Create a new file at the following location: `app/(shared)/share/[slug]/page.tsx`. 
+
+Eagle-eyed viewers will notice we are making use of a new route-group here (shared). This means we don’t have to worry about changing our root layout or removing any calls to getting the user session as it’s a completely independent route! Easy. Now, add the following code to that route:
+
+```tsx copy filename="app/(shared)/share/[slug]/page.tsx"
+import { getPageBySlugWithPageLinks } from "@/lib/api/pages/queries";
+import { HomeIcon } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+export default async function SharedPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const { page, pageLinks } = await getPageBySlugWithPageLinks(params.slug);
+  if (page === undefined) notFound();
+  if (page.public === false) return <main>This page is not public</main>;
+  return (
+    <main>
+      <div className="flex flex-col bg-[#708238] h-screen items-center justify-center py-8 px-4 text-center">
+        <header className="mb-10">
+          <div className="flex justify-center">
+            <div className="w-24 h-24 rounded-full bg-gray-300" />
+          </div>
+          <h1 className="text-2xl font-bold mt-4 text-white">{page.name}</h1>
+          <p className="text-white">{page.description}</p>
+        </header>
+        <nav className="flex-1 w-full max-w-md flex flex-col gap-4">
+          {pageLinks.map((l) => (
+            <Link key={l.id} href={l.url}>
+              <div className="flex items-center gap-4 p-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-200 transition-all duration-300">
+                <HomeIcon className="text-gray-500 w-5 h-5" />
+                <span className="text-gray-800">{l.title}</span>
+              </div>
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </main>
+  );
+}
+```
+
+This page is pretty straightforward. We take in the params (in this case `slug`). We then make a call to the new query function we just created, which will return a page and pageLinks. We first check if the page is undefined, which will throw a 404 thanks to the Next.js `notFound` function. We then do a check to see if the page is not public, which will return text saying the page is not public. Finally, assuming it is defined and public, we render the linktree page itself, displaying the page details at the top and then mapping through the links and displaying them below.
+
+Great! So we can check the shareable page off the list. 
+
+- [x] ~add a new dynamic route `/share/:slug` for the shareable page~
+- [ ] remove `public` and `backgroundColor` fields from pageForm (we want to gate these features)
+- [ ] add and configure stripe
+- [ ] add a new component for users to toggle their page public
+
+### Updating PageForm
+Onto the next task which is to remove `public` and `backgroundColor` fields from pageForm. This is as easy as it sounds. 
+
+#### Comment Out Fields
+Let’s head over to `components/pages/PageForm.tsx`, search for public, and then comment out (or remove) everything from the div above the label to the div below the condition error rendering. Do the same with the background color.
+```tsx
+      {/* <div> */}
+      {/*         <Label */}
+      {/*           className={cn( */}
+      {/*             "mb-2 inline-block", */}
+      {/*             errors?.public ? "text-destructive" : "", */}
+      {/*           )} */}
+      {/*         > */}
+      {/*           Public */}
+      {/*         </Label> */}
+      {/*         <br /> */}
+      {/*         <Checkbox defaultChecked={page?.public} name={'public'} className={cn(errors?.public ? "ring ring-destructive" : "")} /> */}
+      {/*         {errors?.public ? ( */}
+      {/*           <p className="text-xs text-destructive mt-2">{errors.public[0]}</p> */}
+      {/*         ) : ( */}
+      {/*           <div className="h-6" /> */}
+      {/*         )} */}
+      {/* </div> */}
+```
+> note: I'm only showing the public field being commented out. Make sure to comment out the backgroundColor field as well!
+
+#### Update Zod Schema
+We do have to make a few small additional changes to ensure we still have working client-side form validations. 
+
+Head to the `lib/db/schema/pages.ts` file and update the `insertPageParams` to:
+
+```typescript copy {8-9}
+export const insertPageParams = baseSchema
+  .extend({
+    slug: z
+      .string()
+      .min(5, { message: "Your slug must be at least 5 characters long." }),
+  })
+  .omit({
+    public: true, // add this
+    backgroundColor: true, // add this
+    id: true,
+    userId: true,
+  });
+```
+
+This tells the form you it longer needs to receive a public or backgroundColor value.
+
+#### Update HandleSubmit Function
+Next, head back to the PageForm and find the `handleSubmit` function. Add the following two lines to the top of the pendingPage object:
+
+```typescript copy {2-3}
+const pendingPage: Page = {
+  public: page?.public ?? false, // add this
+  backgroundColor: page?.backgroundColor ?? "", // add this
+  updatedAt:
+    page?.updatedAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
+  createdAt:
+    page?.createdAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
+  id: page?.id ?? "",
+  userId: page?.userId ?? "",
+  ...values,
+};
+```
+
+Next, update add two lines to the object within the `updatePageAction` function that is invoked within the same `handleSubmit` function:
+
+```typescript copy {3-4}
+const error = editing
+  ? await updatePageAction({
+      public: page.public, // add this
+      backgroundColor: page.backgroundColor, // add this
+      ...values,
+      id: page.id,
+    })
+  : await createPageAction(values);
+```
+
+Head back to the browser, and hit the edit button on your page, you should no longer see the public or background color field. And you should still be able to edit the page without any form issues.
+
+![](/assets/tutorial/Screenshot%202024-02-12%20at%2018.03.50.png)
+
+Two down, two to go!
+- [x] ~add a new dynamic route `/share/:slug` for the shareable page~
+- [x] ~remove `public` and `backgroundColor` fields from pageForm (we want to gate these features)~
+- [ ] add and configure stripe
+- [ ] add a new component for users to toggle their page public
+
+
+### Adding Stripe
+Ok! Next up, let’s add Stripe. In most tutorials this where they’d say, add these 10 files and these environment variables and then… Not today!
+
+#### Kirimase Add
+Run the following command in your terminal
+
+```bash copy
+pnpm dlx kirimase@latest add
+```
+
+and select Stripe…
+
+
+![](/assets/tutorial/Screenshot%202024-02-12%20at%2018.35.34.png)
+![](/assets/tutorial/giphy%205.gif)
+
+Yep, we just **installed and configured Stripe. In one command.** Ok, but does it actually work? Well, let’s follow the next steps
+
+> Note: you will need to do the following first:
+>
+> - To use Stripe locally, you need the Stripe CLI (https://stripe.com/docs/stripe-cli)
+> - Create a Stripe product (https://dashboard.stripe.com/products) (make sure you are in test mode) and then copy the `api_id`
+
+#### Follow Next Steps
+1. add environment variables to .env
+   > You will see 6 new keys in your `.env`. You can find the secret key and publishable key in your Stripe dashboard, your webhook secret when you run the Stripe CLI, and then the remaining three are `api_id`s for your products. In this case, you can use one `api_id` for all three.
+2. run pnpm run db:generate
+3. run pnpm run db:push
+4. run pnpm run dev
+
+Head over to `/account`. You can see there is a new tile:
+
+![](/assets/tutorial/Screenshot%202024-02-12%20at%2019.18.37.png)
+
+Head into billing and you will see three plans. 
+
+#### Run the Stripe CLI
+First, let’s get the Stripe CLI running. You can do that by opening a new terminal window and running `pnpm run stripe:listen`.
+
+Once the CLI is running, click subscribe on the one of the cards on the billing page. This will redirect you to a stripe checkout page. Enter `4242...` for each section. Then click subscribe.
+
+![](/assets/tutorial/Screenshot%202024-02-12%20at%2019.21.13.png)
+
+Once the payment has successfully been processed (note: you are in test mode so no money is actually changing hands), you will be redirected back to the billing page and should see an updated ui.
+
+![](/assets/tutorial/Screenshot%202024-02-12%20at%2019.22.04.png)
+
+**How cool is that**! Stripe payments integrated in literally one terminal command. So, we can now check that off the list. 
+- [x] ~add a new dynamic route `/share/:slug` for the shareable page~
+- [x] ~remove `public` and `backgroundColor` fields from pageForm (we want to gate these features)~
+- [x] ~add and configure stripe~
+- [ ] add a new component for users to toggle their page public
+
+
+### Make it public
+What’s next? Onto our final todo item: add a new component for users to toggle their page public.
+
+#### TogglePublic Component
+Make a new file at the following location: `app/(app)/pages/[pageId]/_components/TogglePublic.tsx`
+
+In that file, paste in the following code:
+
+```tsx copy filename="app/(app)/pages/[pageId]/_components/TogglePublic.tsx"
+"use client";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { updatePageAction } from "@/lib/actions/pages";
+import { Page } from "@/lib/db/schema/pages";
+import Link from "next/link";
+import { toast } from "sonner";
+
+export default function TogglePublic({
+  isSubscribed,
+  page,
+}: {
+  isSubscribed: boolean;
+  page: Page;
+}) {
+  const pageLink = "http://localhost:3000/share/" + page.slug;
+  return (
+    <div className="relative">
+      {isSubscribed ? null : (
+        <div className="absolute w-full bg-white h-full top-0 right-0 z-50 opacity-90 flex items-center justify-center flex-col">
+          <p className="font-bold text-lg select-none mb-2">
+            You need to subscribe to share this page
+          </p>
+          <Button asChild variant={"secondary"}>
+            <Link href="/account/billing">Subscribe</Link>
+          </Button>
+        </div>
+      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>Share this page</CardTitle>
+          <CardDescription>
+            Anyone with the link can view this page.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {page.public ? (
+            <div className="flex space-x-2">
+              <Input value={pageLink} readOnly disabled={!isSubscribed} />
+              <Button
+                variant="secondary"
+                className="shrink-0"
+                disabled={!isSubscribed}
+                onClick={() => {
+                  navigator.clipboard.writeText(pageLink);
+                  toast.success("Copied to clipboard");
+                }}
+              >
+                Copy Link
+              </Button>
+            </div>
+          ) : (
+            <div>
+              <Button
+                onClick={async () =>
+                  await updatePageAction({ ...page, public: true })
+                }
+              >
+                Make public
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+```
+
+This is a very simple component that adapted from an example on the Shadcn UI examples page. It takes in two props: page and isSubscribed. If the page is not public, it will show a button to make the page public. This is done using a simple onClick handler and then running the `updatePageAction`, which is one of the server actions that was generated for us. If the page is public, it will show a readonly input field and a button to copy the link to the page to your clipboard. Finally, if `isSubscribed` ( a prop of type boolean) is false, then it will render an overlay above directing the user to subscribe. It also disables the Make Public button.
+
+#### Import TogglePublic in our Page
+All we have to do now is import it in our route. Let’s head over to `app/(app)/pages/[pageId]/page.tsx` and insert the TogglePublic component below the first div within the Suspense boundary.
+
+```tsx copy {13}
+const Page = async ({ id }: { id: string }) => {
+  await checkAuth();
+
+  const { page, pageLinks } = await getPageByIdWithPageLinks(id);
+
+  if (!page) notFound();
+  return (
+    <Suspense fallback={<Loading />}>
+      <div className="relative">
+        <BackButton currentResource="pages" />
+        <OptimisticPage page={page} />
+      </div>
+      <TogglePublic /> {/* <- add here */}
+      <div className="relative mt-8 mx-4">
+        <h3 className="text-xl font-medium mb-4">
+          {page.name}&apos;s Page Links
+        </h3>
+        <PageLinkList pages={[]} pageId={page.id} pageLinks={pageLinks} />
+      </div>
+    </Suspense>
+  );
+};
+```
+
+Now we need to pass it the right props. First, the page, that’s easy.
+
+```tsx copy
+<TogglePublic page={page} />
+```
+
+But what about `isSubscribed`? 
+
+Kirimase to the rescue again: when we added Stripe, Kirimase generated a function called `getUserSubscriptionPlan` which returns a host of helpful values. One of them is `isSubscribed`. All you have to do is add the following code to the page component:
+
+```typescript copy {3}
+const Page = async ({ id }: { id: string }) => {
+  await checkAuth();
+  const { isSubscribed } = await getUserSubscriptionPlan();
+  // rest of your code
+```
+
+And then pass it into the TogglePublic component:
+
+```tsx copy
+<TogglePublic page={page} isSubscribed={Boolean(isSubscribed)} />
+```
+
+And just like that. We’re done. Head to the browser, mark your page as public and then check it out at `/share/your-slug` !
+
+![](/assets/tutorial/Screenshot%202024-02-12%20at%2022.58.13.png)
+
+
+And with that, you’re now ready to raise your seed round @ a $100m valuation. Just make sure you buy a .ai domain.
+
+---
+# Kirimase Out.
+![](/assets/tutorial/obama.gif)
+
+---
+Lol sorry for all the memes. If you have any questions, please join our discord or file an issue on Github. Would love to see what you build with Kirimase!
