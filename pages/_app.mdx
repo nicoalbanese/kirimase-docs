@@ -1,12 +1,12 @@
 import { Analytics } from "@vercel/analytics/react";
-import { GoogleTagManager } from '@next/third-parties/google'
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 export default function Nextra({ Component, pageProps }) {
   return (
     <>
       <Component {...pageProps} />
       <Analytics />
-      <GoogleTagManager gtmId="G-7SEKTPRM5P" />
+      <GoogleAnalytics gaId="G-7SEKTPRM5P" />
     </>
   );
 }
