@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/nicoalbanese/kirimase-docs#readme",
   "dependencies": {
+    "@next/third-parties": "^14.1.0",
     "@vercel/analytics": "^1.1.1",
     "next": "^13.0.6",
     "nextra": "latest",
